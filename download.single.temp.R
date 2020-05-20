@@ -3,8 +3,8 @@
 
 # Goal of Project
 # Script 1: Download only the data any regular user would need for some basic 
-    # Ideally verion is a function that pulls and cleans data based upon DPID input.
-    # Basic version does this with one site and one dp. Scale from there.
+# Ideally verion is a function that pulls and cleans data based upon DPID input.
+# Basic version does this with one site and one dp. Scale from there.
 
 # Script 2: Report that data by Domain 
 # Script 3: Automate data pulls from Portal
@@ -28,8 +28,8 @@ library(here)
 # So we want this load by product to just grab 1 month at a time, that way 
 #   when we automate this, it just grabs the last month, instead of all the months
 
-download.wind.func <- function(){
-
+download.single.temp.func <- function(){
+  
   library(neonUtilities)
   library(tidyverse)
   library(ggplot2) # for testing :D
@@ -46,7 +46,7 @@ download.wind.func <- function(){
   for(i in siteList){
     # Grab data from neon portal
     message(paste0("Grabbing ", i, "'s Data now..."))
-    t <-neonUtilities::loadByProduct(dpID = dpLookup$dpID[1], 
+    t <-neonUtilities::loadByProduct(dpID = dpLookup$dpID[2], 
                                      site = i,
                                      # startdate = as.character(dateTable$startDays[i]),
                                      startdate = "2017-12-25",
@@ -54,9 +54,9 @@ download.wind.func <- function(){
                                      check.size = FALSE, 
                                      avg = "30"
     )
-
+    
     # Grab just the 30 min avg'ed wind data
-    t1 <- t$`2DWSD_30min`
+    t1 <- t$SAAT_30min
     
     # Format the columsn and save!
     t1$endDateTime <- lubridate::ymd_hms(t1$endDateTime,tz = "UTC") # some files are already posixct tbh
@@ -68,13 +68,13 @@ download.wind.func <- function(){
     firstDate <- min(as.Date(t1$startDateTime, format = "%Y-%m-%d"), na.rm = TRUE)
     lastDate <- max(as.Date(t1$startDateTime, format = "%Y-%m-%d"), na.rm = TRUE)
     
-    filename <- paste0(t1$domainID[1], "_",t1$siteID[1], "_", dpLookup$dpID[1],"_",firstDate,"_to_",lastDate)
-    saveDir <- paste0(here::here(), "/data/DP1.00001.001/")
+    filename <- paste0(t1$domainID[1], "_",t1$siteID[1], "_", dpLookup$dpID[2],"_",firstDate,"_to_",lastDate)
+    saveDir <- paste0(here::here(), "/data/DP1.00002.001/")
     # Write file
     fst::write.fst(x = t1, path = paste0(saveDir,filename, ".fst"))
     message(paste0(i," wrote successful!."))
-  
+    
   }
 }
 
-download.wind.func()
+download.single.temp.func()
