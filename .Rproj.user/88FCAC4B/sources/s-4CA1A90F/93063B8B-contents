@@ -1,0 +1,28 @@
+# Test plots
+
+data.in1 <- fst::read.fst(path = "X:/1_GitHub/NeonPortalAggregator/data/DP1.00002.001/D13_NIWO_DP1.00002.001_2018-01-01_to_2020-04-30.fst")
+data.in1$verticalPosition
+ggplot(data = data.in1, aes(x = endDateTime, y = tempSingleMean, color = verticalPosition)) + 
+  geom_point()
+
+
+data.in2 <- fst::read.fst(path = "X:/1_GitHub/NeonPortalAggregator/data/DP1.00001.001/D13_NIWO_DP1.00001.001_2018-01-01_to_2020-04-30.fst") %>%
+  dplyr::filter(verticalPosition == "030")
+data.in2$verticalPosition
+ggplot(data = data.in2, aes(x = endDateTime, y = windSpeedMaximum, color = verticalPosition)) + 
+  geom_point()
+
+names(data.in1)
+
+testJoin <- tidytable::dt_left_join(x = data.in1, y = data.in2, by = "startDateTime")
+
+testAgg <- testJoin %>%
+  mutate(date = base::as.Date(startDateTime)) %>%
+  group_by(date) %>%
+  summarise(
+    meanDayTemp = mean(tempSingleMean, na.rm = TRUE)
+  )
+
+dta %>%
+  group_by(Date) %>%
+  summarise(Tot.Expenditure = sum(Expenditure))
