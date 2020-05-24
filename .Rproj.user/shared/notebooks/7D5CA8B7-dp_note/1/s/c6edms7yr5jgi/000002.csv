@@ -1,0 +1,30 @@
+"0","plot(cars)
+"
+"2","Warning messages:
+"
+"2","1: "
+"2","In grDevices::png(f) :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\Kevin\AppData\Local\Temp\RtmpoVVCsB\file1acc61d52fb' for writing
+"
+"2","2: "
+"2","In grDevices::png(f) :"
+"2"," opening device failed
+"
+"2","3: "
+"2","In grDevices::png(f) :"
+"2","
+ "
+"2"," unable to open file 'C:\Users\Kevin\AppData\Local\Temp\RtmpoVVCsB\file1acc69aa7b74' for writing
+"
+"2","4: "
+"2","In grDevices::png(f) :"
+"2"," opening device failed
+"
+"2","5: "
+"2","In (function (filename = if (onefile) ""Rplots.svg"" else ""Rplot%03d.svg"",  :"
+"2","
+ "
+"2"," cairo error 'error while writing to output stream'
+"
