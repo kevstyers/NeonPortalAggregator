@@ -3,4 +3,4 @@ siteList <- c("BART","HARV","BLAN","SCBI","SERC","OSBS","DSNY","JERC","GUAN","LA
                      "TALL","LENO","DELA","WOOD","DCFS","NOGP","STER","CPER","RMNP","NIWO",
                      "CLBJ","OAES","YELL","MOAB","ONAQ","SRER","JORN","WREF","ABBY",
                      "SJER","SOAP","TEAK","TOOL","BARR","BONA","DEJU","HEAL","PUUM")
-saveRDS(siteList, file = "X:/1_GitHub/NeonPortalAggregator/data/lookup/siteList.RDS")
+saveRDS(siteList, file = "data/lookup/siteList.RDS")

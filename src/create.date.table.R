@@ -20,4 +20,4 @@ dateTable$finalDays <- as.Date(dateTable$finalDays, origin = "1970-01-01")
 dateTable <- dateTable %>%
   mutate(startDays = startDays -1)
 
-saveRDS(object = dateTable, file = "X:/1_GitHub/NeonPortalAggregator/data/lookup/dateTable.RDS")
+saveRDS(object = dateTable, file = "data/lookup/dateTable.RDS")

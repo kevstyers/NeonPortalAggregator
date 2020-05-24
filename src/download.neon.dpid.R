@@ -1,9 +1,7 @@
 download.neon.dpid.func <- function(dpid, sites = NULL){
   
-  library(neonUtilities)
+  # library(neonUtilities)
   library(tidyverse)
-  library(lubridate)
-  library(parallel)
   library(lubridate)
   library(here)
   
@@ -26,14 +24,14 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   for(i in siteList$siteID){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
-    t <-neonUtilities::loadByProduct(dpID = dpid, 
-                                     site = i,
-                                     # startdate = as.character(dateTable$startDays[i]),
-                                     startdate = "2017-12-25",
-                                     # enddate = as.character(dateTable$finalDays[i]),
-                                     check.size = FALSE , 
-                                     avg = "30"
-    )
+    # t <-neonUtilities::loadByProduct(dpID = dpid, 
+    #                                  site = i,
+    #                                  # startdate = as.character(dateTable$startDays[i]),
+    #                                  startdate = "2017-12-25",
+    #                                  # enddate = as.character(dateTable$finalDays[i]),
+    #                                  check.size = FALSE , 
+    #                                  avg = "30"
+    # )
     
     # Grab just the 30 min avg'ed wind data
     

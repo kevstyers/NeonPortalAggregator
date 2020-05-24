@@ -44,11 +44,11 @@ shinyUI(
       shinydashboard::tabItem(tabName = "home",
         shinydashboard::box(width = 12, 
             shiny::column(width = 7,
-            shiny::h1("An Eddy-Covariance State of Health Dashboard (and Aquatics)"),
-            shiny::h4("Users can use this application to plot data from all TIS sites to identify Eddy-Co issues, view trends, and verify calibrations/validations."),
+            shiny::h1("Practice Makes Perfect"),
+            shiny::h4("Users can use this app to plot data from a variety of IS Data Products"),
             shiny::icon("signal", lib = "font-awesome"),
-            shiny::tags$b("LC Sevices"),
-            shiny::h4("Raw LC Service uptimes! This tab features an overview plot and site specific LC Service plots. You can use the LC Services tab to quickly identify sites with LC Service issues and investigate site specific LC Service outages."),
+            shiny::tags$b("DP1 Plots"),
+            shiny::h4("Daily aggregated data for every site!"),
           )
         ) # End Box
       ), # End home tabName
@@ -69,9 +69,7 @@ shinyUI(
                 ),
                 shiny::uiOutput('dpidID'),
                 shiny::uiOutput('UniqueStreams'),
-                shiny::dateRangeInput(inputId = "dateRangeID", label = "Select Date Range for Plot",
-                                      start = Sys.Date()-15, end = Sys.Date()
-                                      )
+                shiny::selectInput('stat', label = "Chose Statistic",choices = c("dailyMean","dailyMin","dailyMax"))
                 
                 
             ), # End Column 7
