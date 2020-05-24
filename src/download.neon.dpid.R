@@ -31,8 +31,8 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
                                      # startdate = as.character(dateTable$startDays[i]),
                                      startdate = "2017-12-25",
                                      # enddate = as.character(dateTable$finalDays[i]),
-                                     check.size = FALSE #, 
-                                     # avg = "30"
+                                     check.size = FALSE , 
+                                     avg = "30"
     )
     
     # Grab just the 30 min avg'ed wind data
@@ -70,7 +70,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       
       # Create Directory 
       base::dir.create(base::paste0(saveDir))
-      
+      base::message(base::paste0("Dir created for ", i))
       # Write file
       fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"))
       base::message(base::paste0(i," wrote successful!."))
@@ -82,7 +82,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00004.001")
+dpList <- c("DP1.00001.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
