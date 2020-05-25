@@ -1,9 +1,7 @@
 download.neon.dpid.func <- function(dpid, sites = NULL){
   
-  library(neonUtilities)
+  # library(neonUtilities)
   library(tidyverse)
-  library(lubridate)
-  library(parallel)
   library(lubridate)
   library(here)
   
@@ -21,22 +19,30 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       dplyr::filter(siteID %in% sites)
   }
   
+  # For core site sensors.. hacky but we will make it better one day.
+  # siteList <- list("HARV","SCBI","OSBS",
+  #                           "GUAN","UNDE","KONZ","ORNL","TALL",
+  #                           "WOOD","CPER","NIWO","CLBJ","YELL",
+  #                           "ONAQ","SRER","WREF","SJER","TOOL",
+  #                           "BARR","BONA","PUUM")
   
-
+  # i <- "BART"
+  # dpid <- "DP1.00014.001"
   for(i in siteList$siteID){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
-    t <-neonUtilities::loadByProduct(dpID = dpid, 
+    t <-neonUtilities::loadByProduct(dpID = dpid,
                                      site = i,
                                      # startdate = as.character(dateTable$startDays[i]),
                                      startdate = "2017-12-25",
                                      # enddate = as.character(dateTable$finalDays[i]),
-                                     check.size = FALSE #, 
-                                     # avg = "30"
+                                     check.size = FALSE ,
+                                     avg = "30"
     )
-    
     # Grab just the 30 min avg'ed wind data
-    
+    if(dpid == "DP1.00005.001"){
+      t1 <- t$IRBT_30_minute
+    } else {
     # look for the 30 minute variable!
     names.t <- base::as.data.frame(base::names(t)) %>%
       dplyr::filter(stringr::str_detect(string = base::names(t), pattern = "30min", negate = FALSE) == TRUE)
@@ -45,7 +51,8 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     
     # Grab out just the 30 minute data
     t1 <- t[[var30min]]
-    
+    }
+
     # Format the columns and save!
     t1$endDateTime <- lubridate::ymd_hms(t1$endDateTime,tz = "UTC") # some files are already posixct tbh
     t1$domainID <- base::as.factor(t1$domainID )
@@ -70,7 +77,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       
       # Create Directory 
       base::dir.create(base::paste0(saveDir))
-      
+      base::message(base::paste0("Dir created for ", i))
       # Write file
       fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"))
       base::message(base::paste0(i," wrote successful!."))
@@ -82,8 +89,15 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00004.001")
+dpList <- c("DP1.00024.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
 }
+
+
+domainCoreSiteList <- list("HARV","SCBI","OSBS",
+                            "GUAN","UNDE","KONZ","ORNL","TALL",
+                            "WOOD","CPER","NIWO","CLBJ","YELL",
+                            "ONAQ","SRER","WREF","SJER","TOOL",
+                            "BARR","BONA","PUUM")
