@@ -19,22 +19,23 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       dplyr::filter(siteID %in% sites)
   }
   
-  
-
+  # i <- "BART"
+  # dpid <- "DP1.00014.001"
   for(i in siteList$siteID){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
-    # t <-neonUtilities::loadByProduct(dpID = dpid, 
-    #                                  site = i,
-    #                                  # startdate = as.character(dateTable$startDays[i]),
-    #                                  startdate = "2017-12-25",
-    #                                  # enddate = as.character(dateTable$finalDays[i]),
-    #                                  check.size = FALSE , 
-    #                                  avg = "30"
-    # )
-    
+    t <-neonUtilities::loadByProduct(dpID = dpid,
+                                     site = i,
+                                     # startdate = as.character(dateTable$startDays[i]),
+                                     startdate = "2017-12-25",
+                                     # enddate = as.character(dateTable$finalDays[i]),
+                                     check.size = FALSE ,
+                                     avg = "30"
+    )
     # Grab just the 30 min avg'ed wind data
-    
+    if(dpid == "DP1.00005.001"){
+      t1 <- t$IRBT_30_minute
+    } else {
     # look for the 30 minute variable!
     names.t <- base::as.data.frame(base::names(t)) %>%
       dplyr::filter(stringr::str_detect(string = base::names(t), pattern = "30min", negate = FALSE) == TRUE)
@@ -43,7 +44,8 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     
     # Grab out just the 30 minute data
     t1 <- t[[var30min]]
-    
+    }
+
     # Format the columns and save!
     t1$endDateTime <- lubridate::ymd_hms(t1$endDateTime,tz = "UTC") # some files are already posixct tbh
     t1$domainID <- base::as.factor(t1$domainID )
@@ -80,7 +82,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00001.001")
+dpList <- c("DP1.00014.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
