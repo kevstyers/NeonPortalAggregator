@@ -19,6 +19,13 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       dplyr::filter(siteID %in% sites)
   }
   
+  # For core site sensors.. hacky but we will make it better one day.
+  # siteList <- list("HARV","SCBI","OSBS",
+  #                           "GUAN","UNDE","KONZ","ORNL","TALL",
+  #                           "WOOD","CPER","NIWO","CLBJ","YELL",
+  #                           "ONAQ","SRER","WREF","SJER","TOOL",
+  #                           "BARR","BONA","PUUM")
+  
   # i <- "BART"
   # dpid <- "DP1.00014.001"
   for(i in siteList$siteID){
@@ -82,8 +89,15 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00014.001")
+dpList <- c("DP1.00040.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
 }
+
+
+domainCoreSiteList <- list("HARV","SCBI","OSBS",
+                            "GUAN","UNDE","KONZ","ORNL","TALL",
+                            "WOOD","CPER","NIWO","CLBJ","YELL",
+                            "ONAQ","SRER","WREF","SJER","TOOL",
+                            "BARR","BONA","PUUM")

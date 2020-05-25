@@ -28,7 +28,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   
   # i <- "BART"
   # dpid <- "DP1.00014.001"
-  for(i in siteList$siteID){
+  for(i in siteList$siteID[1:47]){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
     t <-neonUtilities::loadByProduct(dpID = dpid,
@@ -89,7 +89,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00024.001")
+dpList <- c("DP1.00066.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
