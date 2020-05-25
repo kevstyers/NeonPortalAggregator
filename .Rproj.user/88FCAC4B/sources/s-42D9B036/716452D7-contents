@@ -89,7 +89,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00023.001")
+dpList <- c("DP1.00024.001")
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
