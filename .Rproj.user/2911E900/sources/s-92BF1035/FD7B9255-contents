@@ -44,14 +44,22 @@ reactiveData <- shiny::reactive({
     dplyr::rename_at( 14, ~"qfFinal" ) 
 
 
-  t %>%
+  t <- t %>%
     dplyr::mutate(date = base::as.Date(endDateTime)) %>%
     dplyr::group_by(date, verticalPosition) %>%
     dplyr::summarise(
       dailyMean = base::round(base::mean(mean, na.rm = TRUE),2),
       dailyMin  = base::round(base::mean(min,  na.rm = TRUE),2),
-      dailyMax  = base::round(base::mean(max,  na.rm = TRUE),2)
-  )
+      dailyMax  = base::round(base::mean(max,  na.rm = TRUE),2) 
+  )%>%
+    dplyr::mutate(dpID = paste0(input$dpidID))
+    # dplyr::mutate(dpID = "DP1.00001.001")
+  
+  # Join with dpid's table
+  dpTable <- base::readRDS("data/lookup/dpLookup.RDS") 
+  
+  dt <- left_join(t, dpTable, "dpID")
+  dt
   
 })
 
@@ -65,20 +73,28 @@ p <- shiny::reactive({
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition))+
       ggplot2::geom_point() +
-      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", input$dpidID),
+      ggplot2::geom_line() +
+      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
                     y = "Statistical value", x = "")+
       ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
     
   } else if(input$stat == "dailyMin"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition))+
-    ggplot2::geom_point()
+      ggplot2::geom_point() +
+      ggplot2::geom_line() +
+      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
+                    y = "Statistical value", x = "")+
+      ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
     
   } else if(input$stat == "dailyMax"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition))+
-    ggplot2::geom_point()
-    
+      ggplot2::geom_point() +
+      ggplot2::geom_line() +
+      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
+                    y = "Statistical value", x = "")+
+      ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
   }
 })
 
