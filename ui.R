@@ -10,8 +10,6 @@ require(shinycssloaders)
 require(shinydashboard)
 require(viridis)
 require(stringr)
-require(data.table)
-require(ggiraph)
 
 domainSiteList2 <- c("BART","HARV","BLAN","SCBI","SERC","OSBS","DSNY","JERC","GUAN","LAJA",
                       "UNDE","STEI","TREE","KONZ","UKFS","KONA","ORNL","MLBS","GRSM",
