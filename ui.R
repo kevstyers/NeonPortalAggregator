@@ -36,6 +36,7 @@ shinyUI(
     
     # Body
     shinydashboard::dashboardBody(
+      tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
       shinydashboard::tabItems(
       # ----------- Swift Tab ---------
       # Note that tabsetPanel has no issues with extending the tab beyond the bottom of the page
@@ -60,16 +61,16 @@ shinyUI(
       
       shinydashboard::tabItem(tabName = "DP1",
         shinydashboard::box(width = 12,
-            shiny::column(width = 3,
-                shiny::h1("DP1 Plots"),
-                shiny::uiOutput('dpidID'),
-                shiny::uiOutput('UniqueStreams'),
-                shiny::dateRangeInput(inputId = "dateRange", label = "Select Date Range for Plot",
-                                      start = Sys.Date()-120, end = Sys.Date()
+            shiny::column(width = 12,
+                shiny::column(width = 3,
+                  shiny::uiOutput('dpidID'),
+                  shiny::uiOutput('UniqueStreams')
                 ),
-                shiny::selectInput('stat', label = "Chose Statistic",choices = c("dailyMean","dailyMin","dailyMax")),
+                shiny::column(width = 3,
+                shiny::selectInput('stat', label = "Chose Statistic",choices = c("dailyMean","dailyMin","dailyMax", "dailySum")),
                 shiny::selectInput(inputId = "dateBreaks", "Choose Date Labels",
                                    choices = c("day","week", "month"),selected = "month")
+                )
             
                 
                 
@@ -79,6 +80,12 @@ shinyUI(
               shiny::tabPanel("Site Plot",width=12,
                 shiny::fluidRow(width = "100%",
                   plotly::plotlyOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
+                  shiny::column(width = 3),
+                  shiny::column(width = 3,
+                    shiny::dateRangeInput(inputId = "dateRange", label = "Select Date Range for Plot",
+                                          start = Sys.Date()-120, end = Sys.Date()
+                    )
+                  ),
                   shiny::p("National Ecological Observatory Network. 2020 Provisional data downloaded from http://data.neonscience.org on 20 May 2020. Battelle, Boulder, CO, USA")
                 ) 
               ) # End tabPanel

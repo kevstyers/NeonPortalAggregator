@@ -1,5 +1,5 @@
 # data plotter server code
-
+ggplot2::theme_set(theme_bw())
 # Render list of available DPIDS
 output$dpidID = shiny::renderUI({
     list.dpIDs <- base::as.data.frame(base::list.dirs(path = "data", full.names = FALSE))
@@ -26,7 +26,7 @@ output$UniqueStreams = shiny::renderUI({
 reactiveData <- shiny::reactive({
   req(input$dpidID)
   req(input$UniqueStreams)
-  t <- fst::read.fst("data/DP1.00001.001/D01_BART_DP1.00001.001.fst")
+  # t <- fst::read.fst("/srv/shiny-server/NeonPortalAggregator/data/DP1.00001.001/D01_BART_DP1.00001.001.fst")
   # t2 <- fst::read.fst("X:/1_GitHub/NeonPortalAggregator/data/DP1.00004.001/D01_BART_DP1.00004.001.fst")
   # t3 <- fst::read.fst("X:/1_GitHub/NeonPortalAggregator/data/DP1.00001.001/D01_BART_DP1.00001.001.fst")
   # t4 <- fst::read.fst("X:/1_GitHub/NeonPortalAggregator/data/DP1.00001.001/D01_BART_DP1.00001.001.fst")
@@ -42,16 +42,18 @@ reactiveData <- shiny::reactive({
     dplyr::rename_at( 12, ~"expUncert" ) %>%
     dplyr::rename_at( 13, ~"meanStdDev" ) %>%
     dplyr::rename_at( 14, ~"qfFinal" ) 
-
+# t$horizontalPosition
 
   t <- t %>%
     dplyr::mutate(date = base::as.Date(endDateTime)) %>%
     dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2]) %>%
-    dplyr::group_by(date, verticalPosition) %>%
+    # dplyr::filter(date > "2020-01-01" & date < Sys.Date()) %>%
+    dplyr::group_by(date, verticalPosition, horizontalPosition) %>%
     dplyr::summarise(
       dailyMean = base::round(base::mean(mean, na.rm = TRUE),2),
       dailyMin  = base::round(base::mean(min,  na.rm = TRUE),2),
-      dailyMax  = base::round(base::mean(max,  na.rm = TRUE),2) 
+      dailyMax  = base::round(base::mean(max,  na.rm = TRUE),2),
+      dailySum  = base::round(base::sum(mean,  na.rm = TRUE),2)
   )%>%
     dplyr::mutate(dpID = paste0(input$dpidID))
     # dplyr::mutate(dpID = "DP1.00001.001")
@@ -73,33 +75,47 @@ p <- shiny::reactive({
   if(input$stat == "dailyMean"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition))+
-      ggplot2::geom_point() +
-      ggplot2::geom_line() +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
       ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")
+                    y = "Statistical value", x = "") +
+      ggplot2::facet_wrap(~horizontalPosition)
     
   } else if(input$stat == "dailyMin"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition))+
       ggplot2::geom_point() +
-      ggplot2::geom_line() +
+      ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
       ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")
+                    y = "Statistical value", x = "") +
+      ggplot2::facet_wrap(~horizontalPosition)
     
   } else if(input$stat == "dailyMax"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition))+
       ggplot2::geom_point() +
-      ggplot2::geom_line() +
+      ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
       ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")
-    }
+                    y = "Statistical value", x = "") +
+      ggplot2::facet_wrap(~horizontalPosition)
+    
+  } else if(input$stat == "dailySum"){
+    
+    ggplot2::ggplot(reactiveData(), aes(x = date, y = dailySum, color = verticalPosition))+
+      ggplot2::geom_point() +
+      ggplot2::geom_smooth() +
+      ggplot2::theme(axis.text.x = element_text(angle = 325))+
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
+      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
+                    y = "Statistical value", x = "") +
+      ggplot2::facet_wrap(~horizontalPosition)
+  }
 })
 
 output$plot <- plotly::renderPlotly({
