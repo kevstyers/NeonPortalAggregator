@@ -1,6 +1,8 @@
 # NeonPortalAggregator
 A `fst` ETL Pipeline for performing basic analysis on NEON Data
 
+Hosted on [AWS EC2 t2.medium](http://18.219.135.80:3838/NeonPortalAggregator/)!
+
 The NeonPortalAggregator's (name subject to change as always) primary purpose is to build an ETL pipeline for basic IS data for post publication analysis and visualization.
 
 All applicable 30 minute data (think basic metereological sensors) are downloaded and stored in fst files for easy transformations later in the pipeline. Data is collected in bulk, but can be scoped to perform a monthly DP pull (based upon data availability) to be merged with the primary dataset (baby steps...). 

@@ -8,7 +8,7 @@ output$dpidID = shiny::renderUI({
     list.dpIDs <- list.dpIDs %>%
       dplyr::filter(stringr::str_detect(string = dpids, pattern = "DP1") == TRUE)
   
-    shiny::selectInput(inputId = 'dpidID',label =  'Unique Data Streams',choices = list.dpIDs$dpids)
+    shiny::selectInput(inputId = 'dpidID',label =  'Data Products',choices = list.dpIDs$dpids)
 })
 
 
@@ -20,7 +20,7 @@ reactiveInputList <- shiny::reactive({
 })
 
 output$UniqueStreams = shiny::renderUI({
-    shiny::selectInput(inputId = 'UniqueStreams',label =  'Unique Data Streams',choices =  reactiveInputList())
+    shiny::selectInput(inputId = 'UniqueStreams',label =  'Site Selection',choices =  reactiveInputList())
 })
 
 reactiveData <- shiny::reactive({
@@ -46,6 +46,7 @@ reactiveData <- shiny::reactive({
 
   t <- t %>%
     dplyr::mutate(date = base::as.Date(endDateTime)) %>%
+    dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2]) %>%
     dplyr::group_by(date, verticalPosition) %>%
     dplyr::summarise(
       dailyMean = base::round(base::mean(mean, na.rm = TRUE),2),
@@ -74,30 +75,33 @@ p <- shiny::reactive({
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition))+
       ggplot2::geom_point() +
       ggplot2::geom_line() +
+      ggplot2::theme(axis.text.x = element_text(angle = 325))+
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")+
-      ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
+                    y = "Statistical value", x = "")
     
   } else if(input$stat == "dailyMin"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition))+
       ggplot2::geom_point() +
       ggplot2::geom_line() +
+      ggplot2::theme(axis.text.x = element_text(angle = 325))+
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")+
-      ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
+                    y = "Statistical value", x = "")
     
   } else if(input$stat == "dailyMax"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition))+
       ggplot2::geom_point() +
       ggplot2::geom_line() +
+      ggplot2::theme(axis.text.x = element_text(angle = 325))+
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "")+
-      ggplot2::scale_x_date(date_labels = "%Y-%m-%d")
-  }
+                    y = "Statistical value", x = "")
+    }
 })
 
-output$plot <- shiny::renderPlot({
+output$plot <- plotly::renderPlotly({
   p()
-})
+})###3
