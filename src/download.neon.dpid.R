@@ -40,8 +40,10 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
                                      avg = "30"
     )
     # Grab just the 30 min avg'ed wind data
-    if(dpid == "DP1.00005.001"){
-      t1 <- t$IRBT_30_minute
+    if(dpid == "DP1.00005.001"){ # IR Biotemp
+      t1 <- t$IRBT_30_minute 
+    } else if(dpid == "DP1.00095.001"){ # Soil Co2
+      t1 <- t$SCO2C_30_minute
     } else {
     # look for the 30 minute variable!
     names.t <- base::as.data.frame(base::names(t)) %>%
@@ -89,8 +91,9 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00040.001")
+dpList <- c("DP1.00095.001")
 
+# Stopped at Yell! 2020-05-26 3:52Pm
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
 }
