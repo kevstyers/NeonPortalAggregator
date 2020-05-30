@@ -1,11 +1,9 @@
-dpid <- "DP1.00006.001"
-
 download.neon.dpid.func <- function(dpid, sites = NULL){
   
   # library(neonUtilities)
   library(tidyverse)
   library(lubridate)
-  library(tidytable)
+  # library(tidytable)
   
   # dateTable <- readRDS(file = paste0(here::here(), "/data/lookup/dateTable.RDS"))
   dpLookup <- base::readRDS(file = base::paste0("/srv/shiny-server/NeonPortalAggregator/data/lookup/dpLookup.RDS"))
@@ -35,9 +33,6 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
     t <-neonUtilities::loadByProduct(dpID = dpid,
                                      site = i,
-                                     # startdate = as.character(dateTable$startDays[i]),
-                                     startdate = "2017-12-25",
-                                     # enddate = as.character(dateTable$finalDays[i]),
                                      check.size = FALSE ,
                                      avg = "30"
     )
@@ -47,6 +42,11 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     
       
     }
+    
+    # if(dpid == "DP1.00094.001"){
+    #   t.test <- t$SWS_30_minute
+    #   t <- t$SWS_30_minute
+    # }
     if(dpid == "DP1.00006.001"){
       
       
@@ -115,7 +115,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     } else {
     # look for the 30 minute variable!
     names.t <- base::as.data.frame(base::names(t)) %>%
-      dplyr::filter(stringr::str_detect(string = base::names(t), pattern = "30min", negate = FALSE) == TRUE)
+      dplyr::filter(stringr::str_detect(string = base::names(t), pattern = "30", negate = FALSE) == TRUE)
     # Make that 30 min variable into a character
     var30min <- base::as.character(names.t$`base::names(t)`)
     
@@ -159,15 +159,24 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
 
 }
-dpList <- c("DP1.00006.001")
+dpList <- c(
+  # "DP1.00004.001",
+            # "DP1.00022.001","DP1.00023.001","DP1.00024.001",
+            # "DP1.00014.001",
+            # "DP1.00040.001" #,
+            "DP1.00041.001" #,
+            # "DP1.00066.001",
+            # "DP1.00094.001" #,"DP1.00095.001"
+            # "DP1.00098.001"
+  )
 
 for(i in dpList){
   download.neon.dpid.func(dpid = i)
 }
 
 
-domainCoreSiteList <- list("HARV","SCBI","OSBS",
-                            "GUAN","UNDE","KONZ","ORNL","TALL",
-                            "WOOD","CPER","NIWO","CLBJ","YELL",
-                            "ONAQ","SRER","WREF","SJER","TOOL",
-                            "BARR","BONA","PUUM")
+# domainCoreSiteList <- list("HARV","SCBI","OSBS",
+#                             "GUAN","UNDE","KONZ","ORNL","TALL",
+#                             "WOOD","CPER","NIWO","CLBJ","YELL",
+#                             "ONAQ","SRER","WREF","SJER","TOOL",
+#                             "BARR","BONA","PUUM")
