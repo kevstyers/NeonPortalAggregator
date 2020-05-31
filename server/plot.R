@@ -2,33 +2,65 @@
 ggplot2::theme_set(theme_bw())
 
 
+
+m <- reactive({
+  fieldSites <- data.table::fread("/srv/shiny-server/NeonPortalAggregator/data/lookup/field-sites.csv") %>%
+    tidyr::unite("siteID",`Domain Number`,`Site ID`, sep = "_")
+  
+  fieldSitesSelected <- data.table::fread("/srv/shiny-server/NeonPortalAggregator/data/lookup/field-sites.csv") %>%
+    tidyr::unite("siteID",`Domain Number`,`Site ID`, sep = "_")  %>%
+    dplyr::filter(siteID == input$UniqueStreams)
+    # dplyr::filter(siteID == "D01_HARV")
+  
+  leaflet::leaflet() %>%
+    addTiles() %>%  # Add default OpenStreetMap map tiles
+    addProviderTiles("Stamen.Terrain") %>%
+    addMarkers(lng = fieldSites$Longitude, lat = fieldSites$Latitude, label = fieldSites$siteID) %>%
+    setView(lng = fieldSitesSelected$Longitude[1], lat = fieldSitesSelected$Latitude[1],zoom = 15) 
+    # addMarkers(options=list(center = c(lng=fieldSites$Longitude[1], lat=fieldSites$Latitude[1]))) %>%
+    
+    
+    # addMarkers(lng=fieldSites$Longitude[1], lat=fieldSites$Latitude[1],)
+    # addMarkers(lat = "45.99827", lng = "89.70477")
+})
+
+output$map <- leaflet::renderLeaflet({
+  m()
+})
+
+
+
 reactiveData <- shiny::reactive({
   req(input$dpidID)
   req(input$UniqueStreams)
   
-  t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/",input$dpidID,"/",input$UniqueStreams,"_",input$dpidID,".fst"))
+  # t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/",input$dpidID,"/",input$UniqueStreams,"_",input$dpidID,".fst"))
+  t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/Aggregations/",input$dpidID,"/",input$UniqueStreams,".fst"))%>%
+    dplyr::mutate(dpID = paste0(input$dpidID)) %>%
+    dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2])
   
-  t <- t %>% 
-    dplyr::rename_at( 7, ~"mean" ) %>%
-    dplyr::rename_at( 8, ~"min" ) %>%
-    dplyr::rename_at( 9, ~"max" ) %>%
-    dplyr::rename_at( 10, ~"variance" ) %>%
-    dplyr::rename_at( 11, ~"numPts" ) %>%
-    dplyr::rename_at( 12, ~"expUncert" ) %>%
-    dplyr::rename_at( 13, ~"meanStdDev" ) %>%
-    dplyr::rename_at( 14, ~"qfFinal" ) 
+  # t <- t %>% 
+  #   dplyr::rename_at( 7, ~"mean" ) %>%
+  #   dplyr::rename_at( 8, ~"min" ) %>%
+  #   dplyr::rename_at( 9, ~"max" ) %>%
+  #   dplyr::rename_at( 10, ~"variance" ) %>%
+  #   dplyr::rename_at( 11, ~"numPts" ) %>%
+  #   dplyr::rename_at( 12, ~"expUncert" ) %>%
+  #   dplyr::rename_at( 13, ~"meanStdDev" ) %>%
+  #   dplyr::rename_at( 14, ~"qfFinal" ) 
 
-  t <- t %>%
-    dplyr::mutate(date = base::as.Date(endDateTime)) %>%
-    dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2]) %>%
-    dplyr::group_by(date, verticalPosition, horizontalPosition) %>%
-    dplyr::summarise(
-      dailyMean = base::round(base::mean(mean, na.rm = TRUE),2),
-      dailyMin  = base::round(base::mean(min,  na.rm = TRUE),2),
-      dailyMax  = base::round(base::mean(max,  na.rm = TRUE),2),
-      dailySum  = base::round(base::sum(mean,  na.rm = TRUE),2)
-  )%>%
-    dplyr::mutate(dpID = paste0(input$dpidID)) 
+  # t <- t %>%
+  #   dplyr::mutate(date = base::as.Date(endDateTime)) %>%
+  #   dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2]) %>%
+  #   dplyr::group_by(date, verticalPosition, horizontalPosition) %>%
+  #   dplyr::summarise(
+  #     dailyMean = base::round(base::mean(mean, na.rm = TRUE),2),
+  #     dailyMin  = base::round(base::min(min,  na.rm = TRUE),2),
+  #     dailyMax  = base::round(base::max(max,  na.rm = TRUE),2),
+  #     dailySum  = base::round(base::sum(mean,  na.rm = TRUE),2),
+  #     dailyStdDev  = base::round(stats::sd(mean,  na.rm = TRUE),2),
+  #     dailyRange = base::round(max(max, na.rm = TRUE)) - base::round(min(min, na.rm = TRUE))
+  # )
   
   t <- t  %>%
     dplyr::ungroup() %>%
@@ -70,11 +102,13 @@ reactiveData <- shiny::reactive({
   dpTable <- base::readRDS("data/lookup/dpLookup.RDS") 
   
   dt <- left_join(t, dpTable, "dpID")
-  dt
+  
+  unitTable <- data.table::fread("/srv/shiny-server/NeonPortalAggregator/data/lookup/unitLookup.csv")
+  names(unitTable) <- c("dpID", "Units")
+  dt2 <- left_join(dt, unitTable, "dpID")
+  dt2
   
 })
-
-
 
 p <- shiny::reactive({
   req(input$stat)
@@ -83,49 +117,56 @@ p <- shiny::reactive({
   if(input$stat == "dailyMean"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition))+
-      ggplot2::geom_point(shape = 1, size = .55) +
+      ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
-      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
+      ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "", color = "Vertical Sensor Position") +
+                    y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
       ggplot2::facet_wrap(~horizontalPosition)
     
   } else if(input$stat == "dailyMin"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition))+
-      ggplot2::geom_point(shape = 1, size = .55) +
+      ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
-      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
+      ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "", color = "Vertical Sensor Position") +
+                    y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
       ggplot2::facet_wrap(~horizontalPosition)
     
   } else if(input$stat == "dailyMax"){
     
   ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition))+
-      ggplot2::geom_point(shape = 1, size = .55) +
+      ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
-      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
+      ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "", color = "Vertical Sensor Position") +
+                    y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
       ggplot2::facet_wrap(~horizontalPosition)
     
   } else if(input$stat == "dailySum"){
     
     ggplot2::ggplot(reactiveData(), aes(x = date, y = dailySum, color = verticalPosition))+
-      ggplot2::geom_point(shape = 1, size = .55) +
+      ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
-      ggplot2::scale_x_date(date_breaks = input$dateBreaks, sec.axis = dup_axis(name = ""), date_labels = "%Y-%m-%d")+
+      ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
       ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
-                    y = "Statistical value", x = "", color = "Vertical Sensor Position") +
+                    y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
       ggplot2::facet_wrap(~horizontalPosition)
   }
 })
 
+# output$plot <- plotly::renderPlotly({
+#   p()
+# })
 output$plot <- plotly::renderPlotly({
   p()
 })

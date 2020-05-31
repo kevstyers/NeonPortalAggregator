@@ -10,6 +10,7 @@ require(shinycssloaders)
 require(shinydashboard)
 require(viridis)
 require(stringr)
+require(leaflet)
 
 domainSiteList2 <- c("BART","HARV","BLAN","SCBI","SERC","OSBS","DSNY","JERC","GUAN","LAJA",
                       "UNDE","STEI","TREE","KONZ","UKFS","KONA","ORNL","MLBS","GRSM",
@@ -20,7 +21,7 @@ domainSiteList2 <- c("BART","HARV","BLAN","SCBI","SERC","OSBS","DSNY","JERC","GU
 list.dpIDs <- as.data.frame(base::list.dirs(path = "/srv/shiny-server/NeonPortalAggregator/data/", full.names = FALSE))
 names(list.dpIDs) <- "dpID"
 list.dpIDs <- list.dpIDs %>%
-  dplyr::filter(dpID != "" & dpID != "lookup")
+  dplyr::filter(dpID != "" & dpID != "lookup"& dpID != "Aggregations")
 dpTable <- base::readRDS("/srv/shiny-server/NeonPortalAggregator/data/lookup/dpLookup.RDS") 
 list.dpIDs <- left_join(x = list.dpIDs, y = dpTable, by = "dpID")
 
@@ -52,26 +53,24 @@ shinyUI(
     shinydashboard::dashboardBody(
       tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
       shinydashboard::tabItems(
-      # ----------- Swift Tab ---------
-      # Note that tabsetPanel has no issues with extending the tab beyond the bottom of the page
-      shinydashboard::tabItem(tabName = "home",
-        shinydashboard::box(width = 12, 
-            shiny::column(width = 7,
-            shiny::h1("Practice Makes Perfect"),
-            shiny::h4("Users can use this app to plot data from a variety of IS Data Products"),
-            shiny::icon("signal", lib = "font-awesome"),
-            shiny::h4("Daily aggregated data for every site!")
-          )
-        ) # End Box
-      ), # End home tabName
+
+        shinydashboard::tabItem(tabName = "home",
+          shinydashboard::box(width = 12, 
+              shiny::column(width = 7,
+              shiny::h1("Practice Makes Perfect"),
+              shiny::h4("Users can use this app to plot data from a variety of IS Data Products"),
+              shiny::icon("signal", lib = "font-awesome"),
+              shiny::h4("Daily aggregated data for every site!")
+            )
+          ) # End Box
+        ), # End home tabName
       
       ############################################                                                              ############################################
       ############################################                                                              ############################################
       ############################################                                                              ############################################
-      ############################################                       LC Services                            ############################################
+      ############################################                  DP1 TIS Data Products                       ############################################
       ############################################                                                              ############################################
-      ############################################                                                              ############################################
-      ############################################                                                              ############################################
+
       
       shinydashboard::tabItem(tabName = "DP1",
         shinydashboard::box(width = 12,
@@ -103,8 +102,12 @@ shinyUI(
                   shiny::selectInput(inputId = "dateBreaks", "4. Choose Date Labels",
                                      choices = c("day","week", "month", "year"),selected = "year")
                   ),
-                shiny::column(width = 1),
-                shiny::column(width = 3,
+                shiny::column(width = 5,
+                
+                              leaflet::leafletOutput("map")
+                                            
+                ),
+                shiny::column(width = 2,
                   shiny::conditionalPanel(condition = "input.dpidID == 'DP1.00001.001'",
                                           img(src='sensor_2dwind.png', align = "center")
                   ),
@@ -155,8 +158,8 @@ shinyUI(
                                               width = "70%", height = "70%")
                   )
                 ), # End Columb of conditional images
-                shiny::column(width = 5,
-                  shiny::img(src = "favicon.ico",width = "65%", height = "65%",  align = "right")
+                shiny::column(width = 2,
+                  shiny::img(src = "favicon.ico",width = "100%", height = "100%",  align = "right")
                   
                 )
             ), # End Column 7
@@ -164,6 +167,7 @@ shinyUI(
             shinydashboard::tabBox(width = 12,
               shiny::tabPanel("Site Plot",width=12,
                 shiny::fluidRow(width = "100%",
+                  # shiny::plotOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
                   plotly::plotlyOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
                   shiny::column(width = 3),
                   shiny::column(width = 3,
@@ -174,7 +178,8 @@ shinyUI(
                   shiny::p("National Ecological Observatory Network. 2020 Provisional data downloaded from http://data.neonscience.org on 20 May 2020. Battelle, Boulder, CO, USA")
                 ),
                 shiny::fluidRow(
-                  DT::dataTableOutput("table_reactive")
+                  DT::dataTableOutput("table_reactive"),
+                  
                 )
               ) # End tabPanel
             ) # End tabBox

@@ -1,11 +1,13 @@
+dpid <- "DP1.00041.001"
+sites <- "WREF"
+
 download.neon.dpid.func <- function(dpid, sites = NULL){
   
-  # library(neonUtilities)
+  library(neonUtilities)
   library(tidyverse)
   library(lubridate)
-  # library(tidytable)
+
   
-  # dateTable <- readRDS(file = paste0(here::here(), "/data/lookup/dateTable.RDS"))
   dpLookup <- base::readRDS(file = base::paste0("/srv/shiny-server/NeonPortalAggregator/data/lookup/dpLookup.RDS"))
   siteList <- data.table::as.data.table(base::readRDS(file = base::paste0("/srv/shiny-server/NeonPortalAggregator/data/lookup/siteList.RDS")))
   names(siteList) <- "siteID"
@@ -19,16 +21,8 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       dplyr::filter(siteID %in% sites)
   }
   
-  # For core site sensors.. hacky but we will make it better one day.
-  # siteList <- list("HARV","SCBI","OSBS",
-  #                           "GUAN","UNDE","KONZ","ORNL","TALL",
-  #                           "WOOD","CPER","NIWO","CLBJ","YELL",
-  #                           "ONAQ","SRER","WREF","SJER","TOOL",
-  #                           "BARR","BONA","PUUM")
-  
-  # i <- "BART"
-  # dpid <- "DP1.00014.001"
-  for(i in siteList$siteID[1:47]){
+
+  for(i in siteList$siteID[12:47]){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
     t <-neonUtilities::loadByProduct(dpID = dpid,
@@ -42,11 +36,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     
       
     }
-    
-    # if(dpid == "DP1.00094.001"){
-    #   t.test <- t$SWS_30_minute
-    #   t <- t$SWS_30_minute
-    # }
+
     if(dpid == "DP1.00006.001"){
       
       
@@ -140,7 +130,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     if(base::dir.exists(paths = base::paste0(saveDir)) == TRUE ){
       
       # Write file
-      fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"))
+      fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"), compress = 100)
       base::message(base::paste0(i," wrote successful!."))
       
     } else if(base::dir.exists(paths = base::paste0(saveDir)) == FALSE ){
@@ -149,7 +139,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
       base::dir.create(base::paste0(saveDir))
       base::message(base::paste0("Dir created for ", i))
       # Write file
-      fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"))
+      fst::write.fst(x = t1, path = base::paste0(saveDir,filename, ".fst"), compress = 100)
       base::message(base::paste0(i," wrote successful!."))
       
     } else {
@@ -164,9 +154,9 @@ dpList <- c(
             # "DP1.00022.001","DP1.00023.001","DP1.00024.001",
             # "DP1.00014.001",
             # "DP1.00040.001" #,
-            "DP1.00041.001" #,
+            # "DP1.00041.001" #,
             # "DP1.00066.001",
-            # "DP1.00094.001" #,"DP1.00095.001"
+            "DP1.00094.001" #,"DP1.00095.001"
             # "DP1.00098.001"
   )
 
