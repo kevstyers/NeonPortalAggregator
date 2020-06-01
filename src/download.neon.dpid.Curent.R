@@ -22,11 +22,12 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
   
 
-  for(i in siteList$siteID[12:47]){
+  for(i in siteList$siteID[35:36]){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
     t <-neonUtilities::loadByProduct(dpID = dpid,
                                      site = i,
+                                     startdate = "2014-01-01",
                                      check.size = FALSE ,
                                      avg = "30"
     )
@@ -124,7 +125,7 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
     lastDate <- base::max(base::as.Date(t1$startDateTime, format = "%Y-%m-%d"), na.rm = TRUE)
     
     filename <- base::paste0(t1$domainID[1], "_",t1$siteID[1], "_", dpid)
-    saveDir <- base::paste0("/srv/shiny-server/NeonPortalAggregator/data/",dpid,"/")
+    saveDir <- base::paste0("/home/kevin/data/",dpid,"/")
     
     # Check if dp folder exists
     if(base::dir.exists(paths = base::paste0(saveDir)) == TRUE ){
@@ -151,12 +152,13 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
 }
 dpList <- c(
   # "DP1.00004.001",
+  "DP1.00005.001"
             # "DP1.00022.001","DP1.00023.001","DP1.00024.001",
             # "DP1.00014.001",
             # "DP1.00040.001" #,
             # "DP1.00041.001" #,
             # "DP1.00066.001",
-            "DP1.00094.001" #,"DP1.00095.001"
+            # "DP1.00094.001" #,"DP1.00095.001"
             # "DP1.00098.001"
   )
 

@@ -18,7 +18,7 @@ domainSiteList2 <- c("BART","HARV","BLAN","SCBI","SERC","OSBS","DSNY","JERC","GU
                       "CLBJ","OAES","YELL","MOAB","ONAQ","SRER","JORN","WREF","ABBY",
                       "SJER","SOAP","TEAK","TOOL","BARR","BONA","DEJU","HEAL","PUUM")
 
-list.dpIDs <- as.data.frame(base::list.dirs(path = "/srv/shiny-server/NeonPortalAggregator/data/", full.names = FALSE))
+list.dpIDs <- as.data.frame(base::list.dirs(path = "/srv/shiny-server/NeonPortalAggregator/data/Aggregations/", full.names = FALSE))
 names(list.dpIDs) <- "dpID"
 list.dpIDs <- list.dpIDs %>%
   dplyr::filter(dpID != "" & dpID != "lookup"& dpID != "Aggregations")
