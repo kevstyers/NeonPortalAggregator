@@ -34,10 +34,10 @@ reactiveData <- shiny::reactive({
   req(input$dpidID)
   req(input$UniqueStreams)
   
-  # t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/",input$dpidID,"/",input$UniqueStreams,"_",input$dpidID,".fst"))
+  # t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/Aggregations/DP1.00024.001/D01_BART.fst"))
   t <- fst::read.fst(paste0("/srv/shiny-server/NeonPortalAggregator/data/Aggregations/",input$dpidID,"/",input$UniqueStreams,".fst"))%>%
     dplyr::mutate(dpID = paste0(input$dpidID)) %>%
-    dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2])
+    dplyr::filter(date > input$dateRange[1] & date < input$dateRange[2]) 
   
   # t <- t %>% 
   #   dplyr::rename_at( 7, ~"mean" ) %>%
@@ -94,12 +94,14 @@ reactiveData <- shiny::reactive({
                                        no = ifelse(verticalPosition == "509", "Depth 9",
                                        no = ""
                                               ))))))))))))))))))
-                  )
+                  )%>%
+    dplyr::mutate(dpID = input$dpidID)
+    # dplyr::mutate(dpID = "DP1.00024.001")
   
   
   
   # Join with dpid's table
-  dpTable <- base::readRDS("data/lookup/dpLookup.RDS") 
+  dpTable <- base::readRDS("/srv/shiny-server/NeonPortalAggregator/data/lookup/dpLookup.RDS") 
   
   dt <- left_join(t, dpTable, "dpID")
   
@@ -109,6 +111,18 @@ reactiveData <- shiny::reactive({
   dt2
   
 })
+
+
+# Test plot
+
+  # ggplot2::ggplot(dt2, aes(x = date, y = dailyMean, color = verticalPosition))+
+  #     ggplot2::geom_point(shape = 0, size = 1) +
+  #     ggplot2::theme(axis.text.x = element_text(angle = 325))+
+  #     ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+  #     # ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
+  #     # ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
+  #     #               y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
+  #     ggplot2::facet_wrap(~horizontalPosition)
 
 p <- shiny::reactive({
   req(input$stat)
@@ -164,12 +178,12 @@ p <- shiny::reactive({
   }
 })
 
+output$plot <- shiny::renderPlot({
+  p()
+})
 # output$plot <- plotly::renderPlotly({
 #   p()
 # })
-output$plot <- plotly::renderPlotly({
-  p()
-})
 
 output$table_reactive <- DT::renderDT(
 DT::datatable(

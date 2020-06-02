@@ -22,12 +22,12 @@ download.neon.dpid.func <- function(dpid, sites = NULL){
   }
   
 
-  for(i in siteList$siteID[35:36]){
+  for(i in siteList$siteID[1:47]){
     # Grab data from neon portal
     base::message(base::paste0("Grabbing ", i, "'s Data now..."))
     t <-neonUtilities::loadByProduct(dpID = dpid,
                                      site = i,
-                                     startdate = "2014-01-01",
+                                     startdate = "2011-01-01",
                                      check.size = FALSE ,
                                      avg = "30"
     )
