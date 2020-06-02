@@ -98,9 +98,11 @@ shinyUI(
                   shiny::selectInput(inputId = 'UniqueStreams',label =  '2. Site Selection',
                                      choices =  siteListUI, selected = siteListUI[2]
                   ),
-                  shiny::selectInput('stat', label = "3. Chose Statistic",choices = c("dailyMean","dailyMin","dailyMax", "dailySum")),
+                  shiny::selectInput('stat', label = "3. Chose Statistic",choices = c("dailyMean","dailyMin","dailyMax", "dailySum","dailyQF")),
                   shiny::selectInput(inputId = "dateBreaks", "4. Choose Date Labels",
-                                     choices = c("day","week", "month", "year"),selected = "year")
+                                     choices = c("day","week", "month", "year"),selected = "year"),
+                  shiny::sliderInput("qfFilter","Limit number of Quality Flags per day (max = 48)",
+                                     value = 24, min = 0, max = 48)
                   ),
                 shiny::column(width = 5,
                 
@@ -167,8 +169,8 @@ shinyUI(
             shinydashboard::tabBox(width = 12,
               shiny::tabPanel("Site Plot",width=12,
                 shiny::fluidRow(width = "100%",
-                  shiny::plotOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
-                  # plotly::plotlyOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
+                  # shiny::plotOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
+                  plotly::plotlyOutput("plot")  %>% shinycssloaders::withSpinner(color="#012D74",type="3",color.background = "white"),
                   shiny::column(width = 3),
                   shiny::column(width = 3,
                     shiny::dateRangeInput(inputId = "dateRange", label = "5. Select Date Range for Plot",

@@ -95,7 +95,8 @@ reactiveData <- shiny::reactive({
                                        no = ""
                                               ))))))))))))))))))
                   )%>%
-    dplyr::mutate(dpID = input$dpidID)
+    dplyr::mutate(dpID = input$dpidID) %>%
+    dplyr::filter(dailyQF <= input$qfFilter)
     # dplyr::mutate(dpID = "DP1.00024.001")
   
   
@@ -130,8 +131,9 @@ p <- shiny::reactive({
   req(input$UniqueStreams)
   if(input$stat == "dailyMean"){
     
-  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition))+
+  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMean, color = verticalPosition, QualityFlags = dailyQF))+
       ggplot2::geom_point(shape = 0, size = 1) +
+      # ggplot2::geom_rug(date = reactiveData() %>% dplyr::filter(dailyQF > 47), aes(x = date, y = dailyQF), inherit.aes = FALSE)+
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
       ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
@@ -142,7 +144,7 @@ p <- shiny::reactive({
     
   } else if(input$stat == "dailyMin"){
     
-  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition))+
+  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMin, color = verticalPosition, QualityFlags = dailyQF))+
       ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
@@ -154,7 +156,7 @@ p <- shiny::reactive({
     
   } else if(input$stat == "dailyMax"){
     
-  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition))+
+  ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyMax, color = verticalPosition, QualityFlags = dailyQF))+
       ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
@@ -166,7 +168,18 @@ p <- shiny::reactive({
     
   } else if(input$stat == "dailySum"){
     
-    ggplot2::ggplot(reactiveData(), aes(x = date, y = dailySum, color = verticalPosition))+
+    ggplot2::ggplot(reactiveData(), aes(x = date, y = dailySum, color = verticalPosition, QualityFlags = dailyQF))+
+      ggplot2::geom_point(shape = 0, size = 1) +
+      # ggplot2::geom_smooth() +
+      ggplot2::theme(axis.text.x = element_text(angle = 325))+
+      ggplot2::scale_y_continuous(sec.axis = dup_axis(name = "")) +
+      ggplot2::scale_x_date(date_breaks = input$dateBreaks, date_labels = "%Y-%m-%d")+
+      ggplot2::labs(title = paste0(input$UniqueStreams, ": ", reactiveData()$dpName),
+                    y = reactiveData()$Units[1], x = "", color = "Vertical Sensor Position") +
+      ggplot2::facet_wrap(~horizontalPosition)
+  } else if(input$stat == "dailyQF"){
+    
+    ggplot2::ggplot(reactiveData(), aes(x = date, y = dailyQF, color = verticalPosition))+
       ggplot2::geom_point(shape = 0, size = 1) +
       # ggplot2::geom_smooth() +
       ggplot2::theme(axis.text.x = element_text(angle = 325))+
@@ -178,12 +191,12 @@ p <- shiny::reactive({
   }
 })
 
-output$plot <- shiny::renderPlot({
-  p()
-})
-# output$plot <- plotly::renderPlotly({
+# output$plot <- shiny::renderPlot({
 #   p()
 # })
+output$plot <- plotly::renderPlotly({
+  p()
+})
 
 output$table_reactive <- DT::renderDT(
 DT::datatable(
