@@ -51,7 +51,7 @@ shinyUI(
     
     # Body
     shinydashboard::dashboardBody(
-      tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
+      tags$head(tags$link(rel = "shortcut icon", href = "https://github.com/kevstyers/NeonPortalAggregator/blob/master/www/favicon.jpg?raw=true")),
       shinydashboard::tabItems(
 
         shinydashboard::tabItem(tabName = "home",
@@ -161,7 +161,7 @@ shinyUI(
                   )
                 ), # End Columb of conditional images
                 shiny::column(width = 2,
-                  shiny::img(src = "favicon.ico",width = "100%", height = "100%",  align = "right")
+                  shiny::img(src = "https://github.com/kevstyers/NeonPortalAggregator/blob/master/www/favicon.jpg?raw=true",width = "100%", height = "100%",  align = "right")
                   
                 )
             ), # End Column 7
