@@ -12,7 +12,7 @@ AggData <- function(site, dpidID){
   # DEVE
   # dpidID <- "DP1.00005.001"
   # site <- "D14_JORN"
-  
+  # t <- fst::read.fst(paste0("/home/kevin/data/DP1.00001.001/D01_BART_DP1.00001.001.fst"))
   t <- fst::read.fst(paste0("/home/kevin/data/",dpidID,"/",site,"_",dpidID,".fst"))
 
   t <- t %>% 
@@ -36,7 +36,8 @@ AggData <- function(site, dpidID){
       dailyStdDev  = base::round(stats::sd(mean,  na.rm = TRUE),2),
       dailyRange = base::round(max(max, na.rm = TRUE)) - base::round(min(min, na.rm = TRUE)),
       dailyQF = base::round(sum(qfFinal, na.rm = TRUE))
-  )
+  ) %>%
+    dplyr::filter(is.na(dailyMean) == FALSE)
   
   message(head(t))
   
@@ -54,7 +55,7 @@ AggData <- function(site, dpidID){
   
 }
 
-list.dpIDs <- as.data.frame(base::list.dirs(path = "/srv/shiny-server/NeonPortalAggregator/data/", full.names = FALSE))
+list.dpIDs <- as.data.frame(base::list.dirs(path = "/home/kevin/data/", full.names = FALSE))
 names(list.dpIDs) <- "dpID"
 list.dpIDs <- list.dpIDs %>%
   dplyr::filter(dpID != "" & dpID != "lookup" &  dpID != "DP1.00014.001"& dpID != "DP1.00022.001"
@@ -64,8 +65,8 @@ list.dpIDs <- list.dpIDs %>%
 siteList <- data.table::as.data.table(base::readRDS(file = base::paste0("/srv/shiny-server/NeonPortalAggregator/data/lookup/siteList.RDS")))
 names(siteList) <- "siteID"
  
-for(i in sitesList$siteID[35:36]){
-  for(j in list.dpIDs$dpID[1:1]){
+for(i in sitesList$siteID[1:47]){
+  for(j in list.dpIDs$dpID){
     AggData(site = i, dpidID = j)  
   }
 }
